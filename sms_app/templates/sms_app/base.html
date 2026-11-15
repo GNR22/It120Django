@@ -1,0 +1,72 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SMS Sender{% endblock %} | IT 120</title>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("sms-theme");
+        var theme = (saved === "light" || saved === "dark") ? saved : "dark";
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'sms_app/css/style.css' %}?v=3">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="{% url 'sms_app:send' %}">
+        <span class="brand-dot" aria-hidden="true"></span>
+        SMS Sender
+      </a>
+      <div class="header-actions">
+        <nav aria-label="Main">
+          <a href="{% url 'sms_app:send' %}"
+             class="{% if request.resolver_match.url_name == 'send' %}active{% endif %}">Send SMS</a>
+          <a href="{% url 'sms_app:history' %}"
+             class="{% if request.resolver_match.url_name == 'history' %}active{% endif %}">History</a>
+        </nav>
+        <button type="button"
+                id="theme-toggle"
+                class="theme-toggle"
+                aria-label="Switch to light mode"
+                aria-pressed="false">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <span class="theme-toggle-label">Light</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% if messages %}
+      <div class="messages" role="status">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.level_tag }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      IT 120 - Integrative Programming and Technologies &middot; Django + TextBee SMS demo.
+      Only send messages to authorized test recipients.
+    </div>
+  </footer>
+
+  <script src="{% static 'sms_app/js/theme.js' %}?v=3"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

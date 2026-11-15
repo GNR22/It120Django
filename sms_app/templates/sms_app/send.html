@@ -1,0 +1,51 @@
+{% extends "sms_app/base.html" %}
+{% load static %}
+
+{% block title %}Send SMS{% endblock %}
+
+{% block content %}
+<h1>Send an SMS</h1>
+<p class="lead">Enter a recipient and a message. We validate both before anything is sent to TextBee.</p>
+
+<div class="grid">
+  <section class="card" aria-labelledby="form-heading">
+    <h2 id="form-heading">Compose</h2>
+    <form method="post" id="sms-form" novalidate>
+      {% csrf_token %}
+
+      <div class="field {% if form.phone_number.errors %}has-error{% endif %}">
+        <label for="{{ form.phone_number.id_for_label }}">{{ form.phone_number.label }}</label>
+        {{ form.phone_number }}
+        <p class="hint">Local (09...) or international (+63...) format. Trial accounts can only text verified numbers.</p>
+        {% for error in form.phone_number.errors %}<p class="error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="field {% if form.message.errors %}has-error{% endif %}">
+        <label for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>
+        {{ form.message }}
+        <div class="counter" aria-live="polite">
+          <span id="char-count">0</span> / <span id="char-max">{{ max_length }}</span> characters
+          &middot; <span id="segment-count">0 segments</span>
+          <span id="encoding-note" class="muted"></span>
+        </div>
+        {% for error in form.message.errors %}<p class="error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <button type="submit" class="btn" id="send-btn">Send SMS</button>
+    </form>
+  </section>
+
+  <aside class="card" aria-labelledby="preview-heading">
+    <h2 id="preview-heading">Preview</h2>
+    <div class="phone">
+      <p class="preview-to">To: <strong id="preview-to">&mdash;</strong></p>
+      <div class="bubble" id="preview-body">Your message will appear here.</div>
+    </div>
+    <p class="hint">Segment counts are an estimate. Long messages are split into several SMS segments, which can cost more.</p>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'sms_app/js/send.js' %}"></script>
+{% endblock %}

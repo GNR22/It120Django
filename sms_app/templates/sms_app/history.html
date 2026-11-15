@@ -1,0 +1,66 @@
+{% extends "sms_app/base.html" %}
+
+{% block title %}History{% endblock %}
+
+{% block content %}
+<h1>Sending history</h1>
+<p class="lead">Every attempt is recorded. "Submitted" means TextBee accepted the request; use <em>Check status</em> to see whether it was actually delivered.</p>
+
+<div class="stats">
+  <div class="stat"><span class="stat-num">{{ stats.total }}</span><span class="stat-label">Attempts</span></div>
+  <div class="stat"><span class="stat-num">{{ stats.submitted }}</span><span class="stat-label">Submitted</span></div>
+  <div class="stat"><span class="stat-num">{{ stats.delivered }}</span><span class="stat-label">Delivered</span></div>
+  <div class="stat"><span class="stat-num">{{ stats.failed }}</span><span class="stat-label">Failed</span></div>
+</div>
+
+{% if page.object_list %}
+<div class="card table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Recipient</th>
+        <th>Message</th>
+        <th>Status</th>
+        <th><span class="sr-only">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in page.object_list %}
+      <tr>
+        <td class="nowrap">{{ m.created_at|date:"M j, Y g:i A" }}</td>
+        <td class="nowrap">{{ m.masked_recipient }}</td>
+        <td>{{ m.body|truncatechars:60 }}</td>
+        <td>
+          <span class="badge {{ m.badge_class }}">{{ m.delivery_label }}</span>
+          {% if m.error_message %}<div class="small muted">{{ m.error_message }}</div>{% endif %}
+        </td>
+        <td>
+          {% if m.provider_sid %}
+          <form method="post" action="{% url 'sms_app:refresh_status' m.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-small">Check status</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page.has_other_pages %}
+<nav class="pagination" aria-label="Pages">
+  {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">&laquo; Newer</a>{% endif %}
+  <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Older &raquo;</a>{% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<div class="card empty">
+  <p>No messages yet.</p>
+  <a class="btn" href="{% url 'sms_app:send' %}">Send your first SMS</a>
+</div>
+{% endif %}
+{% endblock %}
