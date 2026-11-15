@@ -151,6 +151,8 @@ python manage.py migrate
 ## 9. Running the application
 
 ```bash
+cd project
+source .venv/Scripts/activate
 python manage.py runserver
 ```
 
